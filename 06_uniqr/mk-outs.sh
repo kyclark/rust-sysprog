@@ -5,7 +5,7 @@ OUT_DIR="tests/expected"
 
 [[ ! -d "$OUT_DIR" ]] && mkdir -p "$OUT_DIR"
 
-# Cf https://github.com/coreutils/coreutils/blob/master/tests/misc/uniq.pl
+# Cf https://github.com/coreutils/coreutils/blob/master/tests/uniq/uniq.pl
 echo -ne "a\na\n"    > $ROOT/t1.txt
 echo -ne "a\na"      > $ROOT/t2.txt
 echo -ne "a\nb"      > $ROOT/t3.txt
