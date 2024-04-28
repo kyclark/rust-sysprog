@@ -3,6 +3,7 @@ use assert_cmd::Command;
 use predicates::prelude::*;
 use pretty_assertions::assert_eq;
 use rand::{distributions::Alphanumeric, Rng};
+use serial_test::{parallel, serial};
 use std::{borrow::Cow, fs, path::Path};
 
 const PRG: &str = "findr";
@@ -24,6 +25,7 @@ fn gen_bad_file() -> String {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn skips_bad_dir() -> Result<()> {
     let bad = gen_bad_file();
     let expected = format!("{}: .* [(]os error [23][)]", &bad);
@@ -37,6 +39,7 @@ fn skips_bad_dir() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn dies_bad_name() -> Result<()> {
     Command::cargo_bin(PRG)?
         .args(["--name", "*.csv"])
@@ -48,6 +51,7 @@ fn dies_bad_name() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn dies_bad_type() -> Result<()> {
     let expected = "error: invalid value 'x' for '--type [<TYPE>...]'";
     Command::cargo_bin(PRG)?
@@ -76,15 +80,13 @@ fn format_file_name(expected_file: &str) -> Cow<str> {
 fn run(args: &[&str], expected_file: &str) -> Result<()> {
     let file = format_file_name(expected_file);
     let contents = fs::read_to_string(file.as_ref())?;
-    let mut expected: Vec<&str> =
-        contents.split('\n').filter(|s| !s.is_empty()).collect();
+    let mut expected: Vec<&str> = contents.split('\n').filter(|s| !s.is_empty()).collect();
     expected.sort();
 
     let cmd = Command::cargo_bin(PRG)?.args(args).assert().success();
     let out = cmd.get_output();
     let stdout = String::from_utf8(out.stdout.clone())?;
-    let mut lines: Vec<&str> =
-        stdout.split('\n').filter(|s| !s.is_empty()).collect();
+    let mut lines: Vec<&str> = stdout.split('\n').filter(|s| !s.is_empty()).collect();
     lines.sort();
 
     assert_eq!(lines, expected);
@@ -94,30 +96,35 @@ fn run(args: &[&str], expected_file: &str) -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn path1() -> Result<()> {
     run(&["tests/inputs"], "tests/expected/path1.txt")
 }
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn path_a() -> Result<()> {
     run(&["tests/inputs/a"], "tests/expected/path_a.txt")
 }
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn path_a_b() -> Result<()> {
     run(&["tests/inputs/a/b"], "tests/expected/path_a_b.txt")
 }
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn path_d() -> Result<()> {
     run(&["tests/inputs/d"], "tests/expected/path_d.txt")
 }
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn path_a_b_d() -> Result<()> {
     run(
         &["tests/inputs/a/b", "tests/inputs/d"],
@@ -127,12 +134,14 @@ fn path_a_b_d() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_f() -> Result<()> {
     run(&["tests/inputs", "-t", "f"], "tests/expected/type_f.txt")
 }
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_f_path_a() -> Result<()> {
     run(
         &["tests/inputs/a", "-t", "f"],
@@ -142,6 +151,7 @@ fn type_f_path_a() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_f_path_a_b() -> Result<()> {
     run(
         &["tests/inputs/a/b", "--type", "f"],
@@ -151,6 +161,7 @@ fn type_f_path_a_b() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_f_path_d() -> Result<()> {
     run(
         &["tests/inputs/d", "--type", "f"],
@@ -160,6 +171,7 @@ fn type_f_path_d() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_f_path_a_b_d() -> Result<()> {
     run(
         &["tests/inputs/a/b", "tests/inputs/d", "--type", "f"],
@@ -169,12 +181,14 @@ fn type_f_path_a_b_d() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_d() -> Result<()> {
     run(&["tests/inputs", "-t", "d"], "tests/expected/type_d.txt")
 }
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_d_path_a() -> Result<()> {
     run(
         &["tests/inputs/a", "-t", "d"],
@@ -184,6 +198,7 @@ fn type_d_path_a() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_d_path_a_b() -> Result<()> {
     run(
         &["tests/inputs/a/b", "--type", "d"],
@@ -193,6 +208,7 @@ fn type_d_path_a_b() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_d_path_d() -> Result<()> {
     run(
         &["tests/inputs/d", "--type", "d"],
@@ -202,6 +218,7 @@ fn type_d_path_d() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_d_path_a_b_d() -> Result<()> {
     run(
         &["tests/inputs/a/b", "tests/inputs/d", "--type", "d"],
@@ -211,12 +228,14 @@ fn type_d_path_a_b_d() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_l() -> Result<()> {
     run(&["tests/inputs", "-t", "l"], "tests/expected/type_l.txt")
 }
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_f_l() -> Result<()> {
     run(
         &["tests/inputs", "-t", "l", "f"],
@@ -226,6 +245,7 @@ fn type_f_l() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn name_csv() -> Result<()> {
     run(
         &["tests/inputs", "-n", ".*[.]csv"],
@@ -235,6 +255,7 @@ fn name_csv() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn name_csv_mp3() -> Result<()> {
     run(
         &["tests/inputs", "-n", ".*[.]csv", "-n", ".*[.]mp3"],
@@ -244,6 +265,7 @@ fn name_csv_mp3() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn name_txt_path_a_d() -> Result<()> {
     run(
         &["tests/inputs/a", "tests/inputs/d", "--name", ".*.txt"],
@@ -253,12 +275,14 @@ fn name_txt_path_a_d() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn name_a() -> Result<()> {
     run(&["tests/inputs", "-n", "a"], "tests/expected/name_a.txt")
 }
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_f_name_a() -> Result<()> {
     run(
         &["tests/inputs", "-t", "f", "-n", "a"],
@@ -268,6 +292,7 @@ fn type_f_name_a() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn type_d_name_a() -> Result<()> {
     run(
         &["tests/inputs", "--type", "d", "--name", "a"],
@@ -277,12 +302,14 @@ fn type_d_name_a() -> Result<()> {
 
 // --------------------------------------------------
 #[test]
+#[parallel]
 fn path_g() -> Result<()> {
     run(&["tests/inputs/g.csv"], "tests/expected/path_g.txt")
 }
 
 // --------------------------------------------------
 #[test]
+#[serial]
 #[cfg(not(windows))]
 fn unreadable_dir() -> Result<()> {
     let dirname = "tests/inputs/cant-touch-this";
@@ -303,8 +330,7 @@ fn unreadable_dir() -> Result<()> {
 
     let out = cmd.get_output();
     let stdout = String::from_utf8(out.stdout.clone())?;
-    let lines: Vec<&str> =
-        stdout.split('\n').filter(|s| !s.is_empty()).collect();
+    let lines: Vec<&str> = stdout.split('\n').filter(|s| !s.is_empty()).collect();
 
     assert_eq!(lines.len(), 17);
 
